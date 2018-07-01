@@ -86,7 +86,10 @@ let getDetails = (addr, res) => {
                     lat: results.latitude,
                     lng: results.longitude,
                     hours: weatherResults.hours,
-                    timelineColors: weatherResults.timelineColors
+                    temps:weatherResults.temps,
+                    timelineColors: weatherResults.timelineColors,
+                    dailySummary: weatherResults.dailySummary,
+                    weeklyDetails: weatherResults.weeklyDetails
                 });
             }
         });

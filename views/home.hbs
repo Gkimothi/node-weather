@@ -36,7 +36,7 @@
     <div id="center">
         <span id="currently">
             <!--<span id="currentlyImg"><img src="{{ iconImg }}" alt="Condition Image"></span>-->
-            <span id="currentlyImg"><canvas id="{{ iconImg }}" width="64" height="64"></canvas></span>
+            <span class="skycon" id="currentlyImg"><canvas class="{{ iconImg }}" width="64" height="64"></canvas></span>
             <span id="desc">
                 <span id="summary">{{ currentlyTemp }}&#176;&nbsp;{{ currentlySummary }}</span>
                 <span id="summary-high-low">
@@ -46,7 +46,7 @@
                 </span>
             </span>
         </span>
-        <span id="dailySummary">{{ hourlySummary }}</span>
+        <span id="hourlySummary">{{ hourlySummary }}</span>
     </div>
     <div id="scroll-container">
         <div id="stripes">
@@ -64,29 +64,44 @@
                 <span class="spanHours"><strong>{{this}}</strong></span>
             {{/each}}
         </div>
+        <div id="temps">
+            {{# each temps}}
+                <span class="spanTemps">{{this}}&#176;</span>
+            {{/each}}
+        </div>
     </div>
     <div id="map-container">
         {{!-- <iframe id="embedded-map" width="100%" height="100%"></iframe> --}}
         <script src='https://darksky.net/map-embed/@temperature,{{ lat }},{{ lng }},4.js?embed=true&timeControl=true&fieldControl=true&defaultField=temperature&defaultUnits=_f'></script>
     </div>
-
+    <div id="dailySummary">{{ dailySummary }}</div> 
+    <div id="weekForecast">
+        {{#each weeklyDetails}}
+        <div class="day">
+            <span>
+                <span class="skycon"><canvas class={{icon}} width="32" height="32"></canvas></span>
+                <span class="name">{{day}}</span>
+            </span>
+            <span class="tempRange">
+                <span class="minTemp" style="left:{{minMarginLeft}}%">{{minTemp}}&#176;</span>
+                <span class="bar" style="width:{{barWidth}}%; margin-left:{{minMarginLeft}}%"></span>
+                <span class="maxTemp" style="left:{{maxMarginLeft}}%">{{maxTemp}}&#176;</span>
+            </span>
+        </div>
+        {{/each}} 
+    </div>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script src="/scripts/geolocation.js"></script>
     <script src="/scripts/libs/skycons.js"></script>
+    <script src="/scripts/weeklyIcons.js"></script>
 
-    <script>
-      var icons = new Skycons(),
-          list  = [
-            "clear-day", "clear-night", "partly-cloudy-day",
-            "partly-cloudy-night", "cloudy", "rain", "sleet", "snow", "wind",
-            "fog"
-          ],
-          i;
-      for(i = list.length; i--; )
-        icons.set(list[i], list[i]);
-      icons.play();
-    </script>
+
     {{!-- <script src='https://darksky.net/map-embed/@temperature,{{ lat }},{{ lng }},4.js?embed=true&timeControl=true&fieldControl=true&defaultField=temperature&defaultUnits=_f'></script> --}}
-
+    <script>
+        //{{# each weeklyDetails}}
+        //console.log({{this}});
+        //{{/each}}
+        //console.log(JSON.stringify({{weeklyDetails}}));
+    </script>
 </body>
 </html>

@@ -13,12 +13,16 @@ let getWeather = (addr, lat, lng, callback) => {
             callback('Unable to fetch weather');
        } else if (response.statusCode === 200) {
             let hours = ['Now'];
+            let temps = [Math.round(body.hourly.data[0].temperature)];
             for (i=2; i < 24; i+=2) {
                 hour = moment(moment.unix(body.hourly.data[i].time), 'ddd DD-MMM-YYYY, h A').format('h a')
                 //console.log(hour);
+                //console.log(body.hourly.data[2])
                 hours.push(hour);
+                temps.push(Math.round(body.hourly.data[i].temperature));
                 //console.log(i);
                 //console.log(hours);
+                //console.log(temps);
             }
             //console.log(hours.length);
             let timelineColors = [];
@@ -43,13 +47,44 @@ let getWeather = (addr, lat, lng, callback) => {
                 } else if (body.hourly.data[i].icon === 'snow') {
                     timelineColors.push('blue3');
                 }
-                //console.log(body.hourly.data[i].icon);
-                //console.log(body.hourly.data[i].cloudCover);
-                //console.log(timelineColors);
             }
-            //console.log(hours);
-            //console.log(timelineColors);
-            //console.log(typeof(timelineColors[0]));
+
+            let weeklyDetails = [];
+            for (i=0; i < body.daily.data.length; i++) {
+                //let day = moment(moment.unix(body.daily.data[i].time), 'ddd DD-MMM-YYYY, h A').format('ddd');
+                //weeklyDetails.push(day);
+                weeklyDetails.push({
+                    day: moment(moment.unix(body.daily.data[i].time), 'ddd DD-MMM-YYYY, h A').format('ddd'),
+                    icon: body.daily.data[i].icon,
+                    minTemp: Math.round(body.daily.data[i].temperatureLow),
+                    maxTemp: Math.round(body.daily.data[i].temperatureHigh)
+                })
+            }
+            
+            weeklyDetails[0].day = 'Today';
+            
+            // Get minimum and maximum over the whole array of objects - the difference will give total width
+            let minimum = Number.POSITIVE_INFINITY;
+            let maximum = Number.NEGATIVE_INFINITY;
+            let minTmp;
+            let maxTmp;
+            for (let i=weeklyDetails.length-1; i>=0; i--) {
+                minTmp = weeklyDetails[i].minTemp;
+                maxTmp = weeklyDetails[i].maxTemp;
+                if (minTmp < minimum) minimum = minTmp;
+                if (maxTmp > maximum) maximum = maxTmp;
+            }
+
+            let totalWidth = maximum - minimum;
+
+            weeklyDetails.forEach(function(obj) { 
+                obj.barWidth = Math.round((obj.maxTemp - obj.minTemp)*100/totalWidth); 
+                obj.minMarginLeft = (obj.minTemp - minimum) == 0 ? -1 : -1+(obj.minTemp - minimum)*3;
+                obj.maxMarginLeft = (maximum - obj.maxTemp) == 0 ? 100 : obj.barWidth+obj.minMarginLeft;
+            });
+
+            
+            console.log(weeklyDetails);
            callback(undefined, {
             currentlyTemp: body.currently.temperature,
             currentlyApparentTemp: body.currently.apparentTemperature,
@@ -66,7 +101,10 @@ let getWeather = (addr, lat, lng, callback) => {
             hourlySummary: body.hourly.summary,
             currentlyIcon: body.currently.icon,
             hours: hours,
-            timelineColors: timelineColors
+            temps: temps,
+            timelineColors: timelineColors,
+            dailySummary: body.daily.summary,
+            weeklyDetails: weeklyDetails
            });
        }
     });
